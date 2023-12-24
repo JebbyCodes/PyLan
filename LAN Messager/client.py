@@ -1,29 +1,38 @@
-import socket
-import subprocess
-import shutil
-import tkinter as tk
-import threading, webbrowser
+## v0.01 | CLEANING IN PROGRESS
+
+#== MODULES ==#
+import socket   #hosting
+import threading
+import webbrowser
 import os
-import sys
-import ctypes, random
+import time     #time elapsed
+#~ Tkinter UI ~#
 from tkinter import *
-from tkinter.ttk import Style, Frame as fp
-from tkinter import scrolledtext, ttk, filedialog, font
-from inspect import getsourcefile
-from os.path import abspath
-from functools import reduce
-import time
-import os
-import time
-import importlib.util
-from pip._internal import main as pipmain
-import winreg as reg
-from tkinter import Tk, font
+import tkinter as tk
+from tkinter import Tk, font, ttk
+#~~~~~~~~~~~~~~~#
 
-
+#== REQUIRED STATEMENTS ==#
 root = Tk()
-root['bg']="white"
 
+##########################################################################################
+##########################################################################################
+
+#== CONFIGS ==#
+WINDOW_BG = "white"
+WINDOW_SIZE = ("500x500")
+WINDOW_TITLE = "PyLan"
+uiFont = font.Font(family="SimSun", size=15)
+
+##########################################################################################
+##########################################################################################
+
+#== WINDOW ==#
+root['bg']=WINDOW_BG
+root.geometry(WINDOW_SIZE)
+root.overrideredirect(True)
+
+#~~ Window Scripts ~~#
 def toggle(event):
     if event.type == EventType.Map:
         root.deiconify()
@@ -36,29 +45,10 @@ top.geometry('0x0+10000+10000')
 top.protocol('WM_DELETE_WINDOW', root.destroy)
 top.bind("<Map>", toggle)
 top.bind("<Unmap>", toggle)
-top.title(f"LAN Messager | {socket.gethostname()}")
+top.title(f"{WINDOW_TITLE}")
 
-icon = PhotoImage(file = "icon.ico")
-root.geometry("700x850")
-root.overrideredirect(True)
-root.iconphoto(True, icon)
- 
-buttonframe=Frame(root)
-
-for i in range(5):
-    buttonframe.columnconfigure(1, weight=1)
-
-def on_mouse_press(evt):
-    global xp, yp
-    xp = evt.x
-    yp = evt.y
-
-def on_mouse_drag(evt):
-    deltax = evt.x - xp
-    deltay = evt.y - yp
-    x = root.winfo_x() + deltax
-    y = root.winfo_y() + deltay
-    root.geometry(f"+{x}+{y}")
+##########################################################################################
+##########################################################################################
 
 def quitpy():
     try:
@@ -92,56 +82,59 @@ def quitpy():
     
     root.destroy()
 
+#~~ Custom Titlebar ~~#
 
-buttonframe.bind('<B1-Motion>', on_mouse_drag)
-buttonframe.bind('<ButtonPress-1>', on_mouse_press)
+# Titlebar Movement Handler #
+def on_mouse_press(evt):
+    global xp, yp
+    xp = evt.x
+    yp = evt.y
 
-buttonframe.pack(padx=0, pady=0, fill="x")
-buttonframe.config(width=3, height=0, bg = "gainsboro", highlightthickness=1, highlightbackground="gray")
+def on_mouse_drag(evt):
+    deltax = evt.x - xp
+    deltay = evt.y - yp
+    x = root.winfo_x() + deltax
+    y = root.winfo_y() + deltay
+    root.geometry(f"+{x}+{y}")
+###############################
 
-button1=Button(buttonframe, text=" × ", font=("arial", 13))
-button1.config(width=3, height=0, fg = "black", bg = "gainsboro", activebackground="red", activeforeground="white", borderwidth=0, command=quitpy)
-button1.grid(row=0, column=7)
+titleBar_Frame=Frame(root)
 
-button3=Button(buttonframe, text=" - ", font=("arial", 13))
-button3.config(width=3, height=0, fg = "black", bg = "gainsboro", activebackground="lightgray", activeforeground="white", borderwidth=0, command=top.iconify)
-button3.grid(row=0, column=6)
+titleBar_Frame.bind('<B1-Motion>', on_mouse_drag)
+titleBar_Frame.bind('<ButtonPress-1>', on_mouse_press)
 
-myfont = font.Font(family="SimSun", size=15)
+titleBar_Frame.pack(padx=0, pady=0, fill="x")
+titleBar_Frame.config(width=3, height=0, bg = "gainsboro", highlightthickness=1, highlightbackground="gray")
 
-text=Label(buttonframe, text=f"LAN Messager | {socket.gethostname()}", font=myfont, fg = "gray", bg = "gainsboro")
+# Titlebar Buttons #
+exitButton=Button(titleBar_Frame, text=" × ", font=("arial", 13))
+exitButton.config(width=3, height=0, fg = "black", bg = "gainsboro", activebackground="red", activeforeground="white", borderwidth=0, command=quitpy)
+exitButton.pack(side='right', padx=10)
+
+minimiseButton=Button(titleBar_Frame, text=" - ", font=("arial", 13))
+minimiseButton.config(width=3, height=0, fg = "black", bg = "gainsboro", activebackground="lightgray", activeforeground="white", borderwidth=0, command=top.iconify)
+minimiseButton.pack(side='right')
+#####################
+
+# Titlebar Title #
+text=Label(titleBar_Frame, text=f"{WINDOW_TITLE} | {socket.gethostname()}", font=uiFont, fg = "gray", bg = "gainsboro")
 text.place(x=10,y=2)
-
 text.bind('<B1-Motion>', on_mouse_drag)
+###################
 
-frame1 = Frame(root, highlightthickness=1, highlightbackground="gray")
-frame1['bg']="white"
-frame1.pack(fill=tk.BOTH, expand=True)
+menuButtons_Frame = Frame(root, highlightthickness=1, highlightbackground="gray")
+menuButtons_Frame['bg']="white"
+menuButtons_Frame.pack(fill=tk.BOTH, expand=True)
 
-text1=Label(frame1, text="\n\n", font=("arial", 16), bg="white", fg="#97d180")
+text1=Label(menuButtons_Frame, text="\n\n", font=("arial", 16), bg="white", fg="#97d180")
 text1.pack(pady=20, side= TOP, anchor="w")
-
-bg = PhotoImage(file= "logo.png")
-frame = Label(frame1, image=bg)
-frame.pack(pady=25)
-frame['bg']="white"
-frame.pack(fill=tk.BOTH, expand=False)
 
 def callback(url):
     webbrowser.open_new_tab(url)
 
-frame.bind("<Button-1>", lambda e: callback("https://github.com/PengeSal/LAN-Messager"))
+frame2 = Label(menuButtons_Frame)
 
-
-frame2 = Label(frame1, image=bg)
-
-
-
-
-#STARTAGAINWAS HERE 
-
-
-buttonframe2=Frame(frame1)
+buttonframe2=Frame(menuButtons_Frame)
 buttonframe2.config(bg="white")
 buttonframe2.columnconfigure(0, weight=1)
 buttonframe2.columnconfigure(1, weight=1)
@@ -149,20 +142,17 @@ buttonframe2.pack(fill=tk.BOTH)
 buttonframe2.pack(fill=tk.BOTH, expand=True)
 buttonframe2.pack()
 
-def host():
-    pass
 
+uiFont = font.Font(family="SimSun", size=20, weight="bold")
 
-myfont = font.Font(family="SimSun", size=20, weight="bold")
-
-hostbutton=Button(buttonframe2, text="\nHOST CONVERSATION\n", font=myfont)
-hostbutton.config(width=20, height=0, fg = "gray", bg = "gainsboro", activebackground="lightgray", activeforeground="white", borderwidth=2, command=host)
+hostbutton=Button(buttonframe2, text="\nHOST CONVERSATION\n", font=uiFont)
+hostbutton.config(width=20, height=0, fg = "gray", bg = "gainsboro", activebackground="lightgray", activeforeground="white", borderwidth=2)
 hostbutton.grid(row=0, column=0)
 
 
 
 
-wrapper=LabelFrame(frame1)
+wrapper=LabelFrame(menuButtons_Frame)
 wrapper['bg']='white'
 wrapper.configure(borderwidth=0)
 
@@ -173,7 +163,7 @@ style.configure("Vertical.TScrollbar", gripcount=0, background="gray95", darkcol
             
 mycanvas=Canvas(wrapper, width=600,height=200, bg="white")
 
-yscrollbar=ttk.Scrollbar(mycanvas, orient="vertical", command=mycanvas.yview)
+yscrollbar=tk.Scrollbar(mycanvas, orient="vertical", command=mycanvas.yview)
 
 mycanvas.configure(yscrollcommand=yscrollbar.set)
 mycanvas['bg']='white'
@@ -221,7 +211,7 @@ def join():
 
         if name.get() == "":
             entrybutton.config(state=NORMAL)
-            error.config(text=(">> ERROR: You have to enter a name, dumbass."))
+            error.config(text=(">> ERROR: You have to enter a name."))
         
         else:
             entrybutton.config(state=NORMAL)
@@ -250,10 +240,6 @@ def join():
                                 print(f"Image saved to {image_path}")
 
                             try:
-                                bg = PhotoImage(file=image_path)
-                                
-                                new_width = bg.width()
-                                new_height = bg.height()
 
                                 while new_width > 300 or new_height > 200:
                                     new_width = round(new_width*0.95)
@@ -365,15 +351,7 @@ def join():
                     mycanvas.yview_moveto(1.0)
 
                     textbox.delete(0, tk.END)
-                else:
-                    pass
-
-
-            
-            bg = PhotoImage(file= "logo2.png")
-            frame.config(image=bg)
-            frame.image = bg
-            frame.pack(pady=25)
+                
             text1.pack_forget()
             text.pack_forget()
             buttonframe2.pack_forget()
@@ -396,8 +374,6 @@ def join():
             namelabel.pack_forget()
             entrybutton.pack_forget()
             
-
-
             mycanvas.pack(side=RIGHT, fill="both", expand="yes")
 
             yscrollbar.pack(side=RIGHT, fill="y")
@@ -425,7 +401,7 @@ def join():
             submit.place(x=500, y = 795)
 
             def sendimage():
-                file = str(filedialog.askopenfilenames(title="Choose PNG"))
+                file = str(tk.filedialog.askopenfilenames(title="Choose PNG"))
                 file = file.replace(",", "")
                 file = file.replace("')", "")
                 image_path = file.replace("('", "")
@@ -453,7 +429,6 @@ def join():
                         client_socket3.send(message.encode('utf-8'))
 
 
-
                     else:
                         print("Server did not acknowledge. Image not sent.")
 
@@ -467,12 +442,8 @@ def join():
                         pass
                     client_socket.close()
 
-
-
             openfile.place(x=37, y = 795)
             openfile.config(command = sendimage, width = 3)
-
-
 
             message = f"{convo_name} has joined the conversation! (say hello)"
             client_socket2.send(message.encode('utf-8'))
@@ -492,14 +463,6 @@ def join():
             mycanvas.update_idletasks()
             mycanvas.config(scrollregion=mycanvas.bbox("all"))
             mycanvas.yview_moveto(1.0)
-            
-
-            
-            
-
-            
-
-            
 
     except OSError:
         entrybutton.config(state=NORMAL)
@@ -536,34 +499,21 @@ def startagain():
         socket.close()
 
 
-    buttonframe.pack(padx=0, pady=0, fill="x")
+    titleBar_Frame.pack(padx=0, pady=0, fill="x")
     text.place(x=10, y=2)
-    frame1.pack(fill=tk.BOTH, expand=True)
+    menuButtons_Frame.pack(fill=tk.BOTH, expand=True)
     wrapper.pack_forget()
-    frame.pack_forget()
 
     text1.pack(pady=20, side=TOP, anchor="w")
-    frame2.image = bg
     frame2.pack(pady=25)
     frame2['bg'] = "white"
     frame2.pack(fill=tk.BOTH, expand=False)
-
-    def callback(url):
-        webbrowser.open_new_tab(url)
-
-    frame2.bind("<Button-1>", lambda e: callback("https://github.com/PengeSal/LAN-Messager"))
 
     buttonframe2.pack(fill=tk.BOTH)
     buttonframe2.pack(fill=tk.BOTH, expand=True)
     buttonframe2.pack()
     hostbutton.grid(row=0, column=0)
-    text.pack(pady=20, side=TOP, anchor="w")
     joinbutton.grid(row=0, column=1)
-
-
-
-
-
 
 def choose():
     try:
@@ -575,10 +525,6 @@ def choose():
     home = Button(root, text = ("←"), font = ("arial 38 bold"), command = startagain, borderwidth = 0, bg = "white", fg = "gray", activebackground = "white", activeforeground = "lightgray")
     home.place(x=25, y=32)
     
-    bg = PhotoImage(file= "logo2.png")
-    frame.config(image=bg)
-    frame.image = bg
-    frame.pack(pady=25)
     text1.pack_forget()
     text.pack_forget()
     buttonframe2.pack_forget()
@@ -602,38 +548,11 @@ def choose():
     
 
 
-myfont = font.Font(family="SimSun", size=20, weight="bold")
+uiFont = font.Font(family="SimSun", size=20, weight="bold")
 
-joinbutton=Button(buttonframe2, text="\nJOIN CONVERSATION\n", font=myfont)
+joinbutton=Button(buttonframe2, text="\nJOIN CONVERSATION\n", font=uiFont)
 joinbutton.config(width=20, height=0, fg = "gray", bg = "gainsboro", activebackground="lightgray", activeforeground="white", borderwidth=2, command=choose)
 joinbutton.grid(row=0, column=1)
 
-
-
-text=Label(frame1, text="_________________________________________________________________________\n\n Carbon positive since 2023:                        \n https://github.com/PengeSal/LAN-Messager\n_________________________________________________________________________", font=("arial", 16), bg="white", fg="lightgray")
-text.pack(pady=25, side= TOP, anchor="w")
-
-
-
-
-
+##== INITIALISE ==#
 root.mainloop()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
